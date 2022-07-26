@@ -1,19 +1,23 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx,elm}"],
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx,elm}"],
   theme: {
     colors: {
       //& Surface
-      "surface-0": "hsla(var(--clr-surface-0-hsl) / <alpha-value>)",
-      "surface-1": "hsla(var(--clr-surface-1-hsl) / <alpha-value>)",
-      "surface-2": "hsla(var(--clr-surface-2-hsl) / <alpha-value>)",
-      "surface-3": "hsla(var(--clr-surface-3-hsl) / <alpha-value>)",
-      // & Text
-      "text-0": "hsla(var(--clr-text-0-hsl) / <alpha-value>)",
-      "text-1": "hsla(var(--clr-text-1-hsl) / <alpha-value>)",
-      "text-2": "hsla(var(--clr-text-2-hsl) / <alpha-value>)",
+      "surface-100": "hsla(var(--clr-surface-100-hsl) / <alpha-value>)",
+      "surface-400": "hsla(var(--clr-surface-400-hsl) / <alpha-value>)",
       // & Brand
-      "brand-0": "hsla(var(--clr-brand-0-hsl) / <alpha-value>)",
+      "brand-400": "hsla(var(--clr-brand-400-hsl) / <alpha-value>)",
+      "brand-500": "hsla(var(--clr-brand-500-hsl) / <alpha-value>)",
+      "brand-800": "hsla(var(--clr-brand-800-hsl) / <alpha-value>)",
+      // & Static
+      "static-100": "hsla(var(--clr-static-100-hsl) / <alpha-value>)",
+      "static-200": "hsla(var(--clr-static-200-hsl) / <alpha-value>)",
+      "static-800": "hsla(var(--clr-static-800-hsl) / <alpha-value>)",
+      // & Accent
+      "accent-mango": "hsla(var(--clr-accent-mango-hsl) / <alpha-value>)",
+      "accent-coral": "hsla(var(--clr-accent-coral-hsl) / <alpha-value>)",
+      "accent-cyan": "hsla(var(--clr-accent-cyan-hsl) / <alpha-value>)",
     },
     fontSize: {
       00: "var(--fsf-00)",
