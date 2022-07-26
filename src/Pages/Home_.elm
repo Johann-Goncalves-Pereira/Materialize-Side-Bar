@@ -1,30 +1,30 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
-import Browser.Dom as Dom
-import Components.Svg as SVG exposing (Logo(..))
-import Dict exposing (Dict)
+import Debouncer.Basic as Debouncer exposing (Debouncer, fromSeconds, provideInput, settleWhenQuietFor, toDebouncer)
+import Dict
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
-import Html exposing (Html, a, button, div, h1, h2, h4, h5, header, img, li, section, span, text, ul)
-import Html.Attributes as Attr exposing (class, href, id, rel, tabindex, target)
-import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
+import Html exposing (Attribute, Html, button, div, h4, header, img, li, section, span, text, ul)
+import Html.Attributes as Attr exposing (class)
+import Html.Attributes.Aria exposing (ariaLabelledby)
+import Html.Events as Events
 import Html.Events.Extra.Wheel as Wheel
 import Layout exposing (headerId, initLayout)
 import Page
 import Request
 import Shared
-import Svg exposing (desc)
 import Utils.View exposing (customProp, materialIcon)
 import View exposing (View)
 import VitePluginHelper exposing (asset)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
-page shared req =
-    Page.sandbox
+page shared _ =
+    Page.element
         { init = init
         , update = update
         , view = view shared
+        , subscriptions = subs
         }
 
 
@@ -33,61 +33,85 @@ page shared req =
 
 
 type alias Model =
-    { pager : Int }
+    { quietForOneSecond : Debouncer Msg Msg
+    , pager : Int
+    }
 
 
-init : Model
+init : ( Model, Cmd Msg )
 init =
-    { pager = 0 }
+    ( { quietForOneSecond = manualDebouncer 0.25
+      , pager = 0
+      }
+    , Cmd.none
+    )
 
 
-
--- UPDATE
-
-
-type WheelY
-    = Up
-    | Down
+manualDebouncer : Float -> Debouncer Msg Msg
+manualDebouncer time_ =
+    Debouncer.manual
+        |> settleWhenQuietFor (Just <| fromSeconds time_)
+        |> toDebouncer
 
 
 type Msg
-    = OnWheel WheelY
+    = OnWheel (Int -> Int -> Int)
+    | MsgQuietForSomeTime (Debouncer.Msg Msg)
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        OnWheel side ->
-            if
-                model.pager
-                    >= List.length (viewCenter model)
-                    + 1
-                    || model.pager
-                    <= -1
-            then
-                model
+        OnWheel f_ ->
+            ( { model
+                | pager =
+                    f_ model.pager 1
+                        |> clamp 0 (lengthPager model - 1)
+              }
+            , Cmd.none
+            )
 
-            else
-                case side of
-                    Up ->
-                        { pager = model.pager - 1 }
+        MsgQuietForSomeTime subMsg ->
+            let
+                ( subModel, subCmd, emittedMsg ) =
+                    Debouncer.update subMsg model.quietForOneSecond
 
-                    Down ->
-                        { pager = model.pager + 1 }
+                mappedCmd =
+                    Cmd.map MsgQuietForSomeTime subCmd
+
+                updatedModel =
+                    { model | quietForOneSecond = subModel }
+            in
+            case emittedMsg of
+                Just emitted ->
+                    update emitted updatedModel
+                        |> Tuple.mapSecond
+                            (\cmd -> Cmd.batch [ cmd, mappedCmd ])
+
+                Nothing ->
+                    ( updatedModel, mappedCmd )
 
 
 
 -- SUBS
+
+
+subs : Model -> Sub Msg
+subs _ =
+    Sub.none
+
+
+
 -- VIEW
 
 
 pagerTrigger : Wheel.Event -> Msg
 pagerTrigger wheelEvent =
     if wheelEvent.deltaY > 0 then
-        OnWheel Up
+        OnWheel (+)
 
     else
-        OnWheel Down
+        OnWheel (-)
 
 
 view : Shared.Model -> Model -> View Msg
@@ -115,57 +139,71 @@ view shared model =
                         |> customProp "header-height"
                     ]
                 , mainAttrs =
-                    [ Wheel.onWheel pagerTrigger ]
-                , mainContent = viewPage model
+                    [ pagerTrigger
+                        >> Debouncer.provideInput
+                        >> MsgQuietForSomeTime
+                        |> Wheel.onWheel
+                    ]
+                , sidebarAttrs =
+                    { left = []
+                    , right = [ customPropPager model False ]
+                    }
+                , sidebarContent =
+                    { left = []
+                    , right =
+                        [ viewPager model ]
+                    }
+                , centerAttr = [ customPropPager model True ]
+                , centerContent = viewCenter model
             }
     }
 
 
-viewPage : Model -> List (Html Msg)
-viewPage model =
-    [ div [ class "sidebar-left" ]
-        [ ul [ class "list" ] <|
-            List.map
-                (\x ->
-                    li [ class "list__item" ]
-                        [ button [ class "list__button" ] [ materialIcon "" x ] ]
-                )
-                [ "app_registration", "token", "diamond", "compost" ]
+lengthPager : Model -> Int
+lengthPager model =
+    viewCenter model
+        |> List.length
+
+
+customPropPager : Model -> Bool -> Attribute Msg
+customPropPager { pager } up =
+    let
+        goUp =
+            if up then
+                "-"
+
+            else
+                "+"
+    in
+    String.concat
+        [ if pager == 0 then
+            "0"
+
+          else
+            String.concat
+                [ "calc("
+                , goUp
+                , String.fromInt pager
+                , "00% "
+                , goUp
+                , " var(--gap_))"
+                ]
         ]
-    , div [ class "base-center" ] <| viewCenter model
-    , div [ class "sidebar-right" ] [ viewPager model ]
-    ]
+        |> customProp "pager"
 
 
 viewPager : Model -> Html Msg
 viewPager model =
-    let
-        length =
-            (viewCenter model |> List.length)
-                - 1
-                |> List.range 0
-    in
-    List.indexedMap
-        (\i _ ->
-            span
-                [ Attr.classList
-                    [ ( "pager__ball", True )
-                    , ( "pager__ball--current"
-                      , model.pager == i
-                      )
-                    ]
-                ]
-                []
-        )
-        length
-        |> div [ class "pager" ]
+    span [ class "pager__ball" ] []
+        |> List.repeat (lengthPager model)
+        |> div [ class "pager", customPropPager model False ]
 
 
 viewCenter : Model -> List (Html Msg)
 viewCenter _ =
     [ section [ class "base-section-call", ariaLabelledby "call-label" ]
         [ header [ class "header" ]
-            [ h4 [ class "header__title", Attr.id "call-label" ] [ text "section" ] ]
+            [ h4 [ class "header__title", Attr.id "call-label" ] [ text "Call" ] ]
         , div [ class "body" ]
             [ img
                 [ class "body__img"
