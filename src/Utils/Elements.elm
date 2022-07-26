@@ -3,7 +3,7 @@ module Utils.Elements exposing (Model, Msg, init, subscriptions, update)
 import Browser.Dom as Dom
 import Browser.Events exposing (onResize)
 import Dict exposing (Dict)
-import Layout exposing (headerId)
+import Layout exposing (layoutIds)
 import Task
 
 
@@ -90,4 +90,4 @@ subscriptions =
 
 elementsIds : List String
 elementsIds =
-    [ headerId ]
+    layoutIds

@@ -1,6 +1,9 @@
 @use "../Abstracts/" as *;
 
 @mixin pseudo-border($horizontal: left, $vertical: top) {
+	$top: 0;
+	$bottom: calc(var(--frame-space) - 0px);
+
 	&::before {
 		$border: 1px solid var(--clr-surface-400);
 
@@ -31,10 +34,10 @@
 		}
 
 		@if $vertical == top {
-			top: -1px;
+			top: $top;
 			border-top: $border;
 		} @else {
-			bottom: var(--frame-space);
+			bottom: $bottom;
 			border-bottom: $border;
 		}
 	}
@@ -65,19 +68,20 @@
 		}
 
 		@if $vertical == top {
-			top: -1px;
+			top: $top;
 		} @else {
-			bottom: var(--frame-space);
+			bottom: $bottom;
 		}
 	}
 }
 
-@mixin border-lines($horizontal: left) {
+@mixin border-lines($horizontal: left, $vertical: top) {
 	.border-lines {
 		$calc-bottom: calc(100% - var(--frame-space) * 2);
 
 		position: absolute;
 		inset-block: -1px 0;
+
 		width: 1px;
 
 		background-image: linear-gradient(
@@ -88,6 +92,8 @@
 			var(--clr-surface-400) $calc-bottom,
 			transparent $calc-bottom
 		);
+
+		pointer-events: none;
 
 		@if $horizontal == left {
 			left: 100%;
@@ -111,11 +117,11 @@
 	}
 }
 
-[class*="sidebar-"] {
-	@include backdrop-blur;
+[class*="sidebar--"] {
+	@include backdrop-blur();
 
 	position: relative;
-	top: calc(var(--frame-space) * -1);
+	top: calc(var(--frame-space) - 2);
 
 	padding-inline: var(--sidebar-padding-x, 0.5rem);
 
@@ -123,14 +129,14 @@
 	background-size: 1px;
 	background-position-x: var(--sidebar-bg-position-x);
 
-	height: calc(100% + var(--frame-space) * 2);
+	height: calc(100% + var(--frame-space));
 }
 
-.sidebar-left {
+.sidebar--left {
+	@include border-lines();
+
 	--sidebar-bg-position-x: right;
 	--sidebar-padding-x: 0;
-
-	@include border-lines();
 
 	.list {
 		$padding-y: 0.75rem;
@@ -160,8 +166,8 @@
 	}
 }
 
-.sidebar-right {
-	@include border-lines(right);
+.sidebar--right {
+	@include border-lines(right, bottom);
 
 	.pager {
 		--gap_: 0.5rem;

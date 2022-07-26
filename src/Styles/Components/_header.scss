@@ -1,4 +1,8 @@
+@use "../Abstracts/" as *;
+
 .root__header {
+	@include backdrop-blur();
+
 	position: relative;
 
 	display: grid;
@@ -53,7 +57,7 @@
 	}
 
 	.search {
-		$icon-width: 2.5rem;
+		$icon-width: 2.25rem;
 		grid-area: search;
 
 		position: relative;
@@ -69,8 +73,7 @@
 
 			border-color: transparent;
 
-			transition-property: transform, opacity;
-			transition: 200ms ease-out;
+			transition: transform 200ms ease-out, opacity 200ms ease-in-out -50ms;
 
 			cursor: pointer;
 		}
@@ -86,6 +89,7 @@
 			height: min-content;
 			width: $icon-width;
 
+			user-select: none;
 			pointer-events: none;
 		}
 
@@ -101,6 +105,7 @@
 
 					opacity: 1;
 					transform: translateX(0);
+					transition: transform 200ms ease-out, opacity 200ms ease-in-out 100ms;
 
 					width: 100%;
 
@@ -137,11 +142,12 @@
 
 	.profile {
 		grid-area: profile;
+		padding: 0;
 
 		&__img {
 			border-radius: var(--rounded-full);
 
-			width: 2.25rem;
+			width: 2rem;
 			aspect-ratio: var(--ratio-square);
 			object-fit: contain;
 		}

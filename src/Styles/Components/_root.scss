@@ -18,9 +18,10 @@ body {
 
 .root {
 	--frame-space: 0.875rem;
+
 	display: grid;
-	grid-template-rows: auto 1fr;
+	grid-template-rows: auto 1fr auto;
 	height: 100vh;
-	gap: var(--frame-space);
-	padding-bottom: var(--frame-space);
+
+	isolation: isolate;
 }

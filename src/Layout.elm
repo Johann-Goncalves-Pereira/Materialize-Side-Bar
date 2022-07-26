@@ -1,8 +1,9 @@
-module Layout exposing (Model, headerId, initLayout, viewLayout)
+module Layout exposing (Model, getLayoutIds, initLayout, layoutIds, viewLayout)
 
+import Array exposing (Array)
 import Components.Svg as ElmSvg
 import Gen.Route as Route exposing (Route)
-import Html exposing (Attribute, Html, a, button, div, header, img, input, li, main_, nav, span, text, ul)
+import Html exposing (Attribute, Html, a, button, div, footer, header, img, input, li, main_, nav, span, text, ul)
 import Html.Attributes as Attr exposing (class, classList, href, id, tabindex)
 import Regex
 import String exposing (right)
@@ -15,10 +16,12 @@ import Utils.View exposing (materialIcon)
 
 type alias Model msg =
     { route : Route
+    , pager : Int
     , rootAttr : List (Attribute msg)
     , mainContent : List (Html msg)
     , mainAttrs : List (Attribute msg)
-    , pager : Int
+    , footerAttr : List (Attribute msg)
+    , footerContent : List (Html msg)
     , centerContent : List (Html msg)
     , centerAttr : List (Attribute msg)
     , sidebarContent : { left : List (Html msg), right : List (Html msg) }
@@ -39,6 +42,8 @@ initLayout =
     , rootAttr = []
     , mainContent = []
     , mainAttrs = []
+    , footerContent = []
+    , footerAttr = []
     , pager = 0
     , centerContent = []
     , centerAttr = []
@@ -130,7 +135,7 @@ viewLayout model =
         )
         [ viewHeader model
         , main_ (mainClass :: model.mainAttrs)
-            ([ div (class "sidebar-left" :: model.sidebarAttrs.left)
+            ([ div ([ class "sidebar--left", Attr.id <| getLayoutIds 1 ] ++ model.sidebarAttrs.left)
                 ([ viewBorderLines
                  , ul [ class "list" ] <|
                     List.map
@@ -145,11 +150,12 @@ viewLayout model =
              , div
                 (class "base-center" :: model.centerAttr)
                 [ div [ class "base-center__wrapper" ] model.centerContent ]
-             , div (class "sidebar-right" :: model.sidebarAttrs.right)
+             , div ([ class "sidebar--right", Attr.id (getLayoutIds 2) ] ++ model.sidebarAttrs.right)
                 (viewBorderLines :: model.sidebarContent.right)
              ]
                 ++ model.mainContent
             )
+        , footer (class "root__footer" :: model.footerAttr) model.footerContent
         ]
     ]
 
@@ -162,19 +168,27 @@ viewBorderLines =
         ]
 
 
-headerId : String
-headerId =
-    "root__header"
+layoutIds : List String
+layoutIds =
+    [ "root__header", "sidebar--left", "sidebar--right" ]
+
+
+getLayoutIds : Int -> String
+getLayoutIds grabber =
+    Array.fromList layoutIds
+        |> Array.get grabber
+        |> Maybe.withDefault ""
 
 
 viewHeader : Model msg -> Html msg
 viewHeader model =
-    header [ class "root__header", Attr.id headerId ]
+    header [ class "root__header", Attr.id (getLayoutIds 0) ]
         [ a [ class "logo" ]
             [ ElmSvg.materialize "logo__icon"
             ]
         , nav [ class "nav" ]
-            [ button [ class "nav__menu", tabindex 0 ] [ materialIcon "" "menu" ]
+            [ button [ class "nav__menu", tabindex 0 ]
+                [ materialIcon "" "menu" ]
             , viewHeaderLinks model [ Route.Home_ ]
             ]
         , div [ class "search" ]

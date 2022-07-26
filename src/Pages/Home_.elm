@@ -9,7 +9,7 @@ import Html.Attributes as Attr exposing (class)
 import Html.Attributes.Aria exposing (ariaLabelledby)
 import Html.Events as Events
 import Html.Events.Extra.Wheel as Wheel
-import Layout exposing (headerId, initLayout)
+import Layout exposing (getLayoutIds, initLayout, layoutIds)
 import Page
 import Request
 import Shared
@@ -118,7 +118,7 @@ view : Shared.Model -> Model -> View Msg
 view shared model =
     let
         getHeader =
-            Dict.get headerId shared.elements.elements
+            Dict.get (getLayoutIds 0) shared.elements.elements
 
         headerHeight =
             case getHeader of
@@ -144,6 +144,8 @@ view shared model =
                         >> MsgQuietForSomeTime
                         |> Wheel.onWheel
                     ]
+                , footerContent = (viewFooter shared).content
+                , footerAttr = (viewFooter shared).attrs
                 , sidebarAttrs =
                     { left = []
                     , right = [ customPropPager model False ]
@@ -201,7 +203,7 @@ viewPager model =
 
 viewCenter : Model -> List (Html Msg)
 viewCenter _ =
-    [ section [ class "base-section-call", ariaLabelledby "call-label" ]
+    [ section [ class "base-section--call", ariaLabelledby "call-label" ]
         [ header [ class "header" ]
             [ h4 [ class "header__title", Attr.id "call-label" ] [ text "Call" ] ]
         , div [ class "body" ]
@@ -213,7 +215,7 @@ viewCenter _ =
                 []
             ]
         ]
-    , section [ class "base-section-chat", ariaLabelledby "chat-label" ]
+    , section [ class "base-section--chat", ariaLabelledby "chat-label" ]
         [ header [ class "header" ]
             [ h4 [ class "header__title", Attr.id "chat-label" ] [ text "chat" ] ]
         , div [ class "body" ]
@@ -226,3 +228,34 @@ viewCenter _ =
             ]
         ]
     ]
+
+
+viewFooter : Shared.Model -> { attrs : List (Attribute Msg), content : List (Html Msg) }
+viewFooter { elements } =
+    let
+        sidebarSize =
+            Dict.get (getLayoutIds 1) elements.elements
+
+        justSize =
+            case sidebarSize of
+                Just e_ ->
+                    e_.element.width
+
+                Nothing ->
+                    0
+    in
+    { attrs =
+        [ String.fromFloat justSize
+            ++ "px"
+            |> customProp "sidebar-left-width"
+        ]
+    , content =
+        [ div [ class "hired-time-spend", Attr.title "Tempo restante do especialista" ]
+            [ div [ class "hired-time-spend__bar" ]
+                [ span [] [] ]
+            , Html.i [ class "hired-time-spend__time-left" ] [ text "1h, 37min" ]
+            ]
+        , Html.small [ class "time" ] [ text "Terça, 26 de Julho de 2022 - 15:32" ]
+        , Html.i [ class "online", Attr.title "Há 8 pessoas online. Sua internet não está estável" ] [ text "Current Online (8) ◦ ", materialIcon "" "wifi" ]
+        ]
+    }

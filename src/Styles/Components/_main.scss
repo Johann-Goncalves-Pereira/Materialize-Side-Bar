@@ -2,7 +2,7 @@
 	display: grid;
 	grid-auto-flow: column;
 	grid-template-columns: auto 1fr auto;
-	gap: inherit;
+	gap: var(--frame-space);
 }
 
 .base-center {
@@ -10,7 +10,9 @@
 
 	grid-column: 2/2;
 
-	height: calc(100vh - var(--header-height) - var(--frame-space) * 2);
+	margin-top: var(--frame-space);
+
+	height: calc(100vh - var(--header-height, 65px) - var(--frame-space) * 3.5);
 
 	overflow: hidden;
 

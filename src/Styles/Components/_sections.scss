@@ -1,6 +1,6 @@
 @use "../Abstracts/" as *;
 
-[class*="base-section-"] {
+[class*="base-section--"] {
 	display: var(--section-display, grid);
 	grid-template-rows: var(--section-template-rows, auto 1fr);
 	border-radius: var(--section-rounded, var(--rounded-lg));

@@ -10,11 +10,13 @@
 	}
 }
 
-@mixin backdrop-blur($blur: 0.75rem, $alpha: 0.875) {
+@mixin backdrop-blur($blur: 0.75rem, $alpha: 0.925) {
 	backdrop-filter: var(--s-bd-filter, blur($blur));
-	@include supports(backdrop-filter, none) {
+
+	@supports (not (backdrop-filter: none)) and
+		(not (-webkit-backdrop-filter: none)) {
 		background-color: hsl(
-			var(--clr-brand-800) / var(--no-backdrop-blur-alpha, $alpha)
+			var(--clr-brand-800-hsl) / var(--no-backdrop-blur-alpha, $alpha)
 		);
 	}
 }

@@ -1,0 +1,83 @@
+@use "../Abstracts/" as *;
+
+.root__footer {
+	@include backdrop-blur();
+
+	display: grid;
+	grid-template-columns: var(--sidebar-left-width) 1fr auto 1fr auto;
+	grid-template-areas: ". hired time  online";
+	align-items: center;
+	justify-content: center;
+	gap: 1rem;
+
+	height: calc(var(--frame-space) * 1.5);
+
+	font-size: 0.75rem;
+
+	z-index: 1;
+
+	.online {
+		grid-area: online;
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.7rem;
+		margin-left: auto;
+
+		cursor: default;
+
+		.material-symbols-rounded {
+			font-size: 1em;
+			color: var(--clr-accent-mango);
+		}
+	}
+
+	.time {
+		grid-area: time;
+		letter-spacing: 0.1em;
+		width: fit-content;
+		cursor: default;
+	}
+
+	.hired-time-spend {
+		grid-area: hired;
+
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+
+		&__bar {
+			position: relative;
+
+			border: 1px solid hsl(var(--clr-surface-100-hsl) / 0.5);
+			border-radius: var(--rounded-full);
+
+			width: 10rem;
+			height: 9px;
+
+			> span {
+				position: absolute;
+				inset: 1px;
+
+				border-radius: inherit;
+				overflow: hidden;
+
+				&::before {
+					content: "";
+					position: absolute;
+					inset: 0;
+
+					border-radius: inherit;
+
+					background-color: var(--clr-brand-400);
+
+					transform: translateX(-75%);
+				}
+			}
+		}
+
+		&__time-left {
+			cursor: default;
+		}
+	}
+}
