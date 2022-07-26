@@ -1,10 +1,11 @@
-module Layout exposing (Model, initLayout, viewLayout)
+module Layout exposing (Model, headerId, initLayout, viewLayout)
 
 import Array
 import Gen.Route as Route exposing (Route)
-import Html exposing (Attribute, Html, a, div, header, main_, nav, text)
-import Html.Attributes exposing (class, classList, href, id, tabindex)
+import Html exposing (Attribute, Html, a, button, div, header, img, input, li, main_, nav, text, ul)
+import Html.Attributes as Attr exposing (class, classList, href, id, tabindex)
 import Regex
+import Utils.View exposing (materialIcon)
 
 
 
@@ -13,6 +14,7 @@ import Regex
 
 type alias Model msg =
     { route : Route
+    , rootAttr : List (Attribute msg)
     , mainContent : List (Html msg)
     , mainAttrs : List (Attribute msg)
     }
@@ -28,6 +30,7 @@ type alias Link =
 initLayout : Model msg
 initLayout =
     { route = Route.Home_
+    , rootAttr = []
     , mainContent = []
     , mainAttrs = []
     }
@@ -106,31 +109,64 @@ viewLayout model =
             class <| "root__main main--" ++ classBuilder (routeName model.route)
     in
     [ div
-        [ id "root"
-        , placeholderStyles 0
-        , classList
+        ([ id "root"
+         , classList
             [ ( "root", True )
             , ( "root--" ++ classBuilder (routeName model.route), True )
             ]
-        ]
+         ]
+            ++ model.rootAttr
+        )
         [ viewHeader model
         , main_ (mainClass :: model.mainAttrs) model.mainContent
         ]
     ]
 
 
+headerId : String
+headerId =
+    "root__header"
+
+
 viewHeader : Model msg -> Html msg
 viewHeader model =
-    header [ class "root__header" ]
-        [ viewHeaderLinks model [ Route.Home_, Route.About ]
-            |> nav
-                [ class "root__header__nav"
-                , placeholderStyles 1
+    header [ class "root__header", Attr.id headerId ]
+        [ a [ class "logo" ]
+            [ img
+                [ class "relative top-1"
+                , Attr.src "https://app.materialize.pro/images/logo-materialize-horizontal.svg"
+                , Attr.alt "Page Logo"
                 ]
+                []
+            ]
+        , nav [ class "nav" ]
+            [ button [ class "nav__menu", tabindex 0 ] [ materialIcon "" "menu" ]
+            , viewHeaderLinks model [ Route.Home_ ]
+            ]
+        , input
+            [ class "search"
+            , Attr.type_ "text"
+            , Attr.tabindex 0
+            , Attr.placeholder "Search for something"
+            ]
+            []
+        , button [ class "notification" ]
+            [ materialIcon "" "notifications"
+            ]
+        , button
+            [ class "profile"
+            ]
+            [ img
+                [ class "profile__img"
+                , Attr.src "https://picsum.photos/200"
+                , Attr.alt "Profile Photo"
+                ]
+                []
+            ]
         ]
 
 
-viewHeaderLinks : Model msg -> List Route -> List (Html msg)
+viewHeaderLinks : Model msg -> List Route -> Html msg
 viewHeaderLinks model links =
     List.map
         (\staticRoute ->
@@ -142,40 +178,21 @@ viewHeaderLinks model links =
                 }
         )
         links
+        |> ul [ class "list" ]
 
 
 viewLink : Link -> Html msg
 viewLink model =
-    a
-        [ classList
-            [ ( "root__header__links", True )
-            , ( "root__header__links--current-page"
-              , isRoute model.routeReceived model.routeStatic
-              )
+    li [ class "list__item" ]
+        [ a
+            [ classList
+                [ ( "list__item__link", True )
+                , ( "list__item__link--current-page"
+                  , isRoute model.routeReceived model.routeStatic
+                  )
+                ]
+            , tabindex 0
+            , href <| Route.toHref model.routeStatic
             ]
-        , placeholderStyles 2
-        , href <| Route.toHref model.routeStatic
-        , tabindex 0
+            [ text model.routeName ]
         ]
-        [ text model.routeName ]
-
-
-placeholderStyles : Int -> Attribute msg
-placeholderStyles index =
-    let
-        listOfStyles : List (Attribute msg)
-        listOfStyles =
-            [ class "grid grid-rows-[auto,1fr] gap-8 h-full"
-            , class "flex justify-center gap-4 text-2 bg-surface-1 shadow-inner"
-            , class "p-4 font-semibold md:p-8"
-            ]
-
-        arrayOfStyles : Array.Array (Attribute msg)
-        arrayOfStyles =
-            Array.fromList listOfStyles
-
-        getStyle : Maybe (Attribute msg)
-        getStyle =
-            Array.get index arrayOfStyles
-    in
-    Maybe.withDefault (class "error") getStyle
