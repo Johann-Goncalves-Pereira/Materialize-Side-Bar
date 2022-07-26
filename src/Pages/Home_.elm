@@ -126,7 +126,7 @@ view shared model =
                     e_.element.height
 
                 Nothing ->
-                    0
+                    65
     in
     { title = "Revex - Home"
     , body =
@@ -242,7 +242,7 @@ viewFooter { elements } =
                     e_.element.width
 
                 Nothing ->
-                    0
+                    44
     in
     { attrs =
         [ String.fromFloat justSize
@@ -256,6 +256,7 @@ viewFooter { elements } =
             , Html.i [ class "hired-time-spend__time-left" ] [ text "1h, 37min" ]
             ]
         , Html.small [ class "time" ] [ text "Terça, 26 de Julho de 2022 - 15:32" ]
-        , Html.i [ class "online", Attr.title "Há 8 pessoas online. Sua internet não está estável" ] [ text "Current Online (8) ◦ ", materialIcon "" "wifi" ]
+        , Html.i [ class "online", Attr.title "Há 8 pessoas online. Sua internet não está estável" ]
+            [ text "Current Online (8) ◦ ", materialIcon "" "wifi" ]
         ]
     }
