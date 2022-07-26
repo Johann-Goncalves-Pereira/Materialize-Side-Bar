@@ -1,40 +1,52 @@
 @use "../Abstracts/" as *;
 
-@mixin pseudo-border($side: left) {
+@mixin pseudo-border($horizontal: left, $vertical: top) {
 	&::before {
 		$border: 1px solid var(--clr-surface-400);
 
 		content: "";
 		position: absolute;
-		top: -1px;
-
-		border-top: $border;
 
 		width: var(--frame-space);
 		aspect-ratio: var(--ratio-square);
 
 		pointer-events: none;
 
-		@if $side == left {
+		@if $horizontal == left and $vertical == top {
 			left: calc(100% - 1px);
 			border-left: $border;
 			border-top-left-radius: var(--rounded-lg);
-		} @else {
+		} @else if $horizontal != left and $vertical == top {
 			right: calc(100% - 1px);
 			border-right: $border;
 			border-top-right-radius: var(--rounded-lg);
+		} @else if $horizontal == left and $vertical != top {
+			left: calc(100% - 1px);
+			border-left: $border;
+			border-bottom-left-radius: var(--rounded-lg);
+		} @else {
+			right: calc(100% - 1px);
+			border-right: $border;
+			border-bottom-right-radius: var(--rounded-lg);
+		}
+
+		@if $vertical == top {
+			top: -1px;
+			border-top: $border;
+		} @else {
+			bottom: var(--frame-space);
+			border-bottom: $border;
 		}
 	}
 
 	&::after {
 		content: "";
 		position: absolute;
-		top: -1px;
 
 		width: 40vw;
 		height: 1px;
 
-		@if $side == left {
+		@if $horizontal == left {
 			left: calc(100% + var(--frame-space));
 
 			background-image: linear-gradient(
@@ -51,6 +63,51 @@
 				var(--clr-surface-400)
 			);
 		}
+
+		@if $vertical == top {
+			top: -1px;
+		} @else {
+			bottom: var(--frame-space);
+		}
+	}
+}
+
+@mixin border-lines($horizontal: left) {
+	.border-lines {
+		$calc-bottom: calc(100% - var(--frame-space) * 2);
+
+		position: absolute;
+		inset-block: -1px 0;
+		width: 1px;
+
+		background-image: linear-gradient(
+			180deg,
+			transparent var(--frame-space),
+			var(--clr-surface-400) var(--frame-space),
+			transparent 50%,
+			var(--clr-surface-400) $calc-bottom,
+			transparent $calc-bottom
+		);
+
+		@if $horizontal == left {
+			left: 100%;
+
+			&__top {
+				@include pseudo-border();
+			}
+			&__bottom {
+				@include pseudo-border($vertical: bottom);
+			}
+		} @else {
+			right: 100%;
+
+			&__top {
+				@include pseudo-border(right);
+			}
+			&__bottom {
+				@include pseudo-border(right, bottom);
+			}
+		}
 	}
 }
 
@@ -62,13 +119,6 @@
 
 	padding-inline: var(--sidebar-padding-x, 0.5rem);
 
-	background-image: linear-gradient(
-		180deg,
-		transparent var(--frame-space),
-		var(--clr-surface-400) var(--frame-space),
-		transparent 100%
-	);
-	// var(--clr-surface-400) 100%
 	background-repeat: no-repeat;
 	background-size: 1px;
 	background-position-x: var(--sidebar-bg-position-x);
@@ -79,10 +129,11 @@
 .sidebar-left {
 	--sidebar-bg-position-x: right;
 	--sidebar-padding-x: 0;
-	@include pseudo-border;
+
+	@include border-lines();
 
 	.list {
-		$padding-y: 0.875rem;
+		$padding-y: 0.75rem;
 
 		display: grid;
 		gap: 1rem;
@@ -95,7 +146,12 @@
 		&__button {
 			display: grid;
 			place-items: center;
-			padding: 0.625rem $padding-y;
+			padding: 0.5rem $padding-y;
+
+			.material-symbols-rounded {
+				// width: 1rem;
+				font-size: 1.25rem;
+			}
 
 			&:enter {
 				color: var(--clr-brand-400);
@@ -105,31 +161,55 @@
 }
 
 .sidebar-right {
-	@include pseudo-border(right);
+	@include border-lines(right);
 
 	.pager {
+		--gap_: 0.5rem;
+
 		position: absolute;
 		inset-block: 0;
 		right: 100%;
 
 		display: grid;
 		place-content: center;
-		gap: 0.5rem;
+		gap: var(--gap_);
 		width: var(--frame-space);
 
 		pointer-events: none;
 
 		&__ball {
-			width: 8px;
+			cursor: pointer;
+		}
+
+		&__ball,
+		&__ball:first-child::before {
+			width: var(--width_, 8px);
 			aspect-ratio: var(--ratio-square);
 			border: 2px solid hsl(var(--clr-surface-100-hsl) / var(--alpha_, 0.5));
 			border-radius: var(--rounded-full);
 
 			pointer-events: all;
+		}
 
-			&--current {
+		&__ball:first-child {
+			position: relative;
+
+			&::before {
+				--width_: 4px;
 				--alpha_: 0.9;
-				background-color: hsl(var(--clr-surface-100-hsl) / 0.25);
+
+				content: "";
+				position: absolute;
+				top: -2px;
+				left: -2px;
+
+				transform: translateY(var(--pager));
+				transition: transform 500ms ease-in-out;
+				will-change: transform;
+
+				// background-color: hsl(var(--clr-surface-100-hsl) / 0.5);
+
+				cursor: default;
 			}
 		}
 	}

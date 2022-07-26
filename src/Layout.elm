@@ -1,10 +1,11 @@
 module Layout exposing (Model, headerId, initLayout, viewLayout)
 
-import Array
+import Components.Svg as ElmSvg
 import Gen.Route as Route exposing (Route)
-import Html exposing (Attribute, Html, a, button, div, header, img, input, li, main_, nav, text, ul)
+import Html exposing (Attribute, Html, a, button, div, header, img, input, li, main_, nav, span, text, ul)
 import Html.Attributes as Attr exposing (class, classList, href, id, tabindex)
 import Regex
+import String exposing (right)
 import Utils.View exposing (materialIcon)
 
 
@@ -17,6 +18,11 @@ type alias Model msg =
     , rootAttr : List (Attribute msg)
     , mainContent : List (Html msg)
     , mainAttrs : List (Attribute msg)
+    , pager : Int
+    , centerContent : List (Html msg)
+    , centerAttr : List (Attribute msg)
+    , sidebarContent : { left : List (Html msg), right : List (Html msg) }
+    , sidebarAttrs : { left : List (Attribute msg), right : List (Attribute msg) }
     }
 
 
@@ -33,6 +39,11 @@ initLayout =
     , rootAttr = []
     , mainContent = []
     , mainAttrs = []
+    , pager = 0
+    , centerContent = []
+    , centerAttr = []
+    , sidebarContent = { left = [], right = [] }
+    , sidebarAttrs = { left = [], right = [] }
     }
 
 
@@ -118,9 +129,37 @@ viewLayout model =
             ++ model.rootAttr
         )
         [ viewHeader model
-        , main_ (mainClass :: model.mainAttrs) model.mainContent
+        , main_ (mainClass :: model.mainAttrs)
+            ([ div (class "sidebar-left" :: model.sidebarAttrs.left)
+                ([ viewBorderLines
+                 , ul [ class "list" ] <|
+                    List.map
+                        (\x ->
+                            li [ class "list__item" ]
+                                [ button [ class "list__button" ] [ materialIcon "" x ] ]
+                        )
+                        [ "app_registration", "token", "diamond", "compost" ]
+                 ]
+                    ++ model.sidebarContent.left
+                )
+             , div
+                (class "base-center" :: model.centerAttr)
+                [ div [ class "base-center__wrapper" ] model.centerContent ]
+             , div (class "sidebar-right" :: model.sidebarAttrs.right)
+                (viewBorderLines :: model.sidebarContent.right)
+             ]
+                ++ model.mainContent
+            )
         ]
     ]
+
+
+viewBorderLines : Html msg
+viewBorderLines =
+    div [ class "border-lines" ]
+        [ span [ class "border-lines__top" ] []
+        , span [ class "border-lines__bottom" ] []
+        ]
 
 
 headerId : String
@@ -132,24 +171,22 @@ viewHeader : Model msg -> Html msg
 viewHeader model =
     header [ class "root__header", Attr.id headerId ]
         [ a [ class "logo" ]
-            [ img
-                [ class "relative top-1"
-                , Attr.src "https://app.materialize.pro/images/logo-materialize-horizontal.svg"
-                , Attr.alt "Page Logo"
-                ]
-                []
+            [ ElmSvg.materialize "logo__icon"
             ]
         , nav [ class "nav" ]
             [ button [ class "nav__menu", tabindex 0 ] [ materialIcon "" "menu" ]
             , viewHeaderLinks model [ Route.Home_ ]
             ]
-        , input
-            [ class "search"
-            , Attr.type_ "text"
-            , Attr.tabindex 0
-            , Attr.placeholder "Search for something"
+        , div [ class "search" ]
+            [ input
+                [ class "search__input"
+                , Attr.type_ "text"
+                , Attr.tabindex 0
+                , Attr.placeholder "Search for something"
+                ]
+                []
+            , materialIcon "search__icon" "search"
             ]
-            []
         , button [ class "notification" ]
             [ materialIcon "" "notifications"
             ]
