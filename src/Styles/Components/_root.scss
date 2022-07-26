@@ -1,0 +1,23 @@
+body {
+	font-family: "Fredoka", spotify-circular, spotify-circular-cyrillic,
+		spotify-circular-arabic, spotify-circular-hebrew, "Helvetica Neue",
+		helvetica, arial, "Hiragino Kaku Gothic Pro", Meiryo, "MS Gothic",
+		sans-serif;
+
+	background-color: var(--clr-brand-800);
+	background-image: url("https://app.materialize.pro/images/background_dark.jpg");
+	background-position: bottom;
+	background-repeat: no-repeat;
+	background-size: cover;
+
+	color: var(--clr-surface-100);
+}
+
+.root {
+	--frame-space: 0.875rem;
+	display: grid;
+	grid-template-rows: auto 1fr;
+	height: 100vh;
+	gap: var(--frame-space);
+	padding-bottom: var(--frame-space);
+}

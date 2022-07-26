@@ -1,17 +1,22 @@
 module Pages.Home_ exposing (Model, Msg, page)
 
+import Browser.Dom as Dom
 import Components.Svg as SVG exposing (Logo(..))
+import Dict exposing (Dict)
 import Gen.Params.Home_ exposing (Params)
 import Gen.Route as Route
-import Html exposing (Html, a, div, h1, h2, h5, section, text)
-import Html.Attributes exposing (class, href, id, rel, tabindex, target)
+import Html exposing (Html, a, button, div, h1, h2, h4, h5, header, img, li, section, span, text, ul)
+import Html.Attributes as Attr exposing (class, href, id, rel, tabindex, target)
 import Html.Attributes.Aria exposing (ariaLabel, ariaLabelledby)
-import Layout exposing (initLayout)
+import Html.Events.Extra.Wheel as Wheel
+import Layout exposing (headerId, initLayout)
 import Page
 import Request
 import Shared
 import Svg exposing (desc)
+import Utils.View exposing (customProp, materialIcon)
 import View exposing (View)
+import VitePluginHelper exposing (asset)
 
 
 page : Shared.Model -> Request.With Params -> Page.With Model Msg
@@ -19,7 +24,7 @@ page shared req =
     Page.sandbox
         { init = init
         , update = update
-        , view = view
+        , view = view shared
         }
 
 
@@ -28,91 +33,158 @@ page shared req =
 
 
 type alias Model =
-    {}
+    { pager : Int }
 
 
 init : Model
 init =
-    {}
+    { pager = 0 }
 
 
 
 -- UPDATE
 
 
+type WheelY
+    = Up
+    | Down
+
+
 type Msg
-    = ReplaceMe
+    = OnWheel WheelY
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        ReplaceMe ->
-            model
+        OnWheel side ->
+            if
+                model.pager
+                    >= List.length (viewCenter model)
+                    + 1
+                    || model.pager
+                    <= -1
+            then
+                model
+
+            else
+                case side of
+                    Up ->
+                        { pager = model.pager - 1 }
+
+                    Down ->
+                        { pager = model.pager + 1 }
 
 
 
+-- SUBS
 -- VIEW
 
 
-view : Model -> View Msg
-view model =
+pagerTrigger : Wheel.Event -> Msg
+pagerTrigger wheelEvent =
+    if wheelEvent.deltaY > 0 then
+        OnWheel Up
+
+    else
+        OnWheel Down
+
+
+view : Shared.Model -> Model -> View Msg
+view shared model =
+    let
+        getHeader =
+            Dict.get headerId shared.elements.elements
+
+        headerHeight =
+            case getHeader of
+                Just e_ ->
+                    e_.element.height
+
+                Nothing ->
+                    0
+    in
     { title = "Revex - Home"
     , body =
         Layout.viewLayout
             { initLayout
                 | route = Route.Home_
-                , mainAttrs = [ class "flex flex-col gap-8 justify-center items-center" ]
-                , mainContent = viewPlaceholder
+                , rootAttr =
+                    [ String.fromFloat headerHeight
+                        ++ "px"
+                        |> customProp "header-height"
+                    ]
+                , mainAttrs =
+                    [ Wheel.onWheel pagerTrigger ]
+                , mainContent = viewPage model
             }
     }
 
 
-viewPlaceholder : List (Html msg)
-viewPlaceholder =
-    [ h1
-        [ class "text-center text-2"
-        , id "placeholder"
-        ]
-        [ a
-            [ class "logo-ctnr__title bg-surface-2 px-7 py-3 rounded-xl gap-2"
-            , href "https://github.com/Johann-Goncalves-Pereira/Revex"
-            , target "_blank"
-            , rel "noopener noreferrer"
-            , tabindex 0
-            , ariaLabel "This template project, to start with all the tools you need faster."
-            ]
-            [ SVG.logo SVG.Revex, text "Revex" ]
-        ]
-    , section [ class "bg-surface-2 p-4 rounded-xl w-[min(70rem,100vw_-_4rem)] mb-8 md:p-8", ariaLabelledby "placeholder" ]
-        [ h2
-            [ class "text-center opacity-60 text-1"
-            ]
-            [ text "Start a Project with these features integrated" ]
-        , div [ class "logo-ctnr flex flex-wrap items-center justify-center mt-8 gap-4 md:gap-8" ] <|
+viewPage : Model -> List (Html Msg)
+viewPage model =
+    [ div [ class "sidebar-left" ]
+        [ ul [ class "list" ] <|
             List.map
-                (\{ svg, link, desc, name } ->
-                    a
-                        [ class "logo-ctnr__link grid grid-rows-[auto,max-content] gap-4 h-24 w-16 md:w-24 md:h-28"
-                        , href link
-                        , ariaLabel desc
-                        , target "_blank"
-                        , rel "noopener noreferrer"
-                        , tabindex 0
-                        ]
-                        [ svg, h5 [ class "text-1 opacity-75" ] [ text name ] ]
+                (\x ->
+                    li [ class "list__item" ]
+                        [ button [ class "list__button" ] [ materialIcon "" x ] ]
                 )
-                [ --: Svg and Link
-                  { svg = SVG.logo SVG.Elm, link = "https://elm-lang.org", desc = "A delightful language for reliable web applications.", name = "Elm" }
-                , { svg = SVG.logo SVG.ElmSpa, link = "https://www.elm-spa.dev", desc = "Automatically generated a single page application for elm.", name = "Elm Spa" }
-                , { svg = SVG.logo SVG.PostCss, link = "https://postcss.org", desc = "A tool for transforming CSS with JavaScript.", name = "PostCss" }
-                , { svg = SVG.logo SVG.Tailwind, link = "https://tailwindcss.com", desc = "Rapidly build modern websites without ever leaving your HTML.", name = "Tailwind" }
-                , { svg = SVG.logo SVG.OpenProps, link = "https://open-props.style", desc = "Supercharged CSS variables.", name = "Open Props" }
-                , { svg = SVG.logo SVG.Sass, link = "https://sass-lang.com", desc = "Sass is a preprocessor scripting language that is interpreted or compiled into Cascading Style Sheets.", name = "Sass" }
-                , { svg = SVG.logo SVG.Vite, link = "https://vitejs.dev", desc = "Next Generation Frontend Tooling. Base of this project.", name = "Vite" }
-                , { svg = SVG.logo SVG.EsBuild, link = "https://esbuild.github.io", desc = "An extremely fast JavaScript bundler.", name = "EsBuild" }
-                , { svg = SVG.logo SVG.EditorConfig, link = "https://editorconfig.org", desc = "EditorConfig helps maintain consistent coding styles for multiple developers working on the same project across various editors and IDEs.", name = "EditorConfig" }
-                , { svg = SVG.logo SVG.TypeScript, link = "https://www.typescriptlang.org", desc = "TypeScript is JavaScript with syntax for types.", name = "Typescript" }
+                [ "app_registration", "token", "diamond", "compost" ]
+        ]
+    , div [ class "base-center" ] <| viewCenter model
+    , div [ class "sidebar-right" ] [ viewPager model ]
+    ]
+
+
+viewPager : Model -> Html Msg
+viewPager model =
+    let
+        length =
+            (viewCenter model |> List.length)
+                - 1
+                |> List.range 0
+    in
+    List.indexedMap
+        (\i _ ->
+            span
+                [ Attr.classList
+                    [ ( "pager__ball", True )
+                    , ( "pager__ball--current"
+                      , model.pager == i
+                      )
+                    ]
                 ]
+                []
+        )
+        length
+        |> div [ class "pager" ]
+
+
+viewCenter : Model -> List (Html Msg)
+viewCenter _ =
+    [ section [ class "base-section-call", ariaLabelledby "call-label" ]
+        [ header [ class "header" ]
+            [ h4 [ class "header__title", Attr.id "call-label" ] [ text "section" ] ]
+        , div [ class "body" ]
+            [ img
+                [ class "body__img"
+                , Attr.src <| asset "/assets/jitsi-semple.png"
+                , Attr.alt "Jitise semple"
+                ]
+                []
+            ]
+        ]
+    , section [ class "base-section-chat", ariaLabelledby "chat-label" ]
+        [ header [ class "header" ]
+            [ h4 [ class "header__title", Attr.id "chat-label" ] [ text "chat" ] ]
+        , div [ class "body" ]
+            [ img
+                [ class "body__img"
+                , Attr.src <| asset "/assets/jitsi-semple.png"
+                , Attr.alt "Jitise semple"
+                ]
+                []
+            ]
         ]
     ]

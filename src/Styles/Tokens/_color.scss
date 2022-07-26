@@ -1,0 +1,41 @@
+@use "../Abstracts/" as *;
+@use "sass:string" as str;
+
+//? Prevent Hsl to transform in Hex.
+@function hsl($h, $s, $l) {
+	@return unquote("hsl(#{$h}, #{$s}, #{$l})");
+}
+
+$colors: (
+	surface: (
+		"100": hsl(0, 0%, 95%),
+		"400": hsl(210, 4%, 39%),
+	),
+	brand: (
+		"400": hsl(174, 98%, 48%),
+		"500": hsl(174, 57%, 43%),
+		"800": hsl(205, 23%, 16%),
+	),
+	static: (
+		"100": hsl(0, 0%, 98%),
+		"200": hsl(0, 0%, 85%),
+		"800": hsl(0, 0%, 22%),
+	),
+	accent: (
+		"mango": hsl(47, 100%, 50%),
+		"coral": hsl(0, 84%, 73%),
+		"cyan": hsl(198, 74%, 63%),
+	),
+);
+
+:root {
+	@each $color, $shades in $colors {
+		@each $shade, $clr in $shades {
+			$break-hsl: str.slice($clr, 5, -2);
+			$clean-hsl: str-replace($break-hsl, ",", "");
+
+			--clr-#{$color}-#{$shade}: #{$clr};
+			--clr-#{$color}-#{$shade}-hsl: #{$clean-hsl};
+		}
+	}
+}

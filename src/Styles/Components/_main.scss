@@ -1,0 +1,14 @@
+.root__main {
+	display: grid;
+	grid-auto-flow: column;
+	grid-template-columns: auto 1fr auto;
+	gap: inherit;
+}
+
+.base-center {
+	grid-column: 2/2;
+
+	height: calc(100vh - var(--header-height) - var(--frame-space) * 2);
+
+	overflow: hidden;
+}

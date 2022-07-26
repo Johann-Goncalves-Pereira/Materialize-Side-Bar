@@ -1,0 +1,20 @@
+@mixin supports($property, $value, $support: false) {
+	@if $support {
+		@supports ($property: $value) {
+			@content;
+		}
+	} @else {
+		@supports (not ($property: $value)) {
+			@content;
+		}
+	}
+}
+
+@mixin backdrop-blur($blur: 0.75rem, $alpha: 0.875) {
+	backdrop-filter: var(--s-bd-filter, blur($blur));
+	@include supports(backdrop-filter, none) {
+		background-color: hsl(
+			var(--clr-brand-800) / var(--no-backdrop-blur-alpha, $alpha)
+		);
+	}
+}
