@@ -1,7 +1,7 @@
 {
   "name": "revex",
   "private": true,
-  "version": "0.2.7",
+  "version": "0.0.1",
   "scripts": {
     "dev": "elm-spa gen && vite",
     "build": "elm-spa gen && vite build",
