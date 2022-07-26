@@ -1,22 +1,23 @@
 @use "../Abstracts/" as *;
 
 [class*="base-section-"] {
-	display: var(--s-display, grid);
-	grid-template-rows: var(--s-template-rows, auto 1fr);
-	border-radius: var(--s-rounded, var(--rounded-lg));
+	display: var(--section-display, grid);
+	grid-template-rows: var(--section-template-rows, auto 1fr);
+	border-radius: var(--section-rounded, var(--rounded-lg));
+	height: var(--section-height, inherit);
 
 	@include backdrop-blur;
 
 	> header {
-		border-top-left-radius: var(--h-rounded-top-left, inherit);
-		border-top-right-radius: var(--h-rounded-top-right, inherit);
+		border-top-left-radius: var(--section-header-rounded-top-left, inherit);
+		border-top-right-radius: var(--section-header-rounded-top-right, inherit);
 
-		padding: var(--h-padding, 0.5rem 1rem);
+		padding: var(--section-header-padding, 0.5rem 1rem);
 
-		width: var(--h-width, 100%);
+		width: var(--section-header-width, 100%);
 
 		background-image: var(
-			--h-bg-img,
+			--section-header-bg-img,
 			linear-gradient(
 				135deg,
 				hsl(var(--clr-surface-400-hsl) / 0.2),
@@ -24,18 +25,24 @@
 			)
 		);
 
-		font-weight: var(--h-font-w, 500);
-		text-transform: var(--h-text-transform, capitalize);
+		font-weight: var(--section-header-font-w, 500);
+		text-transform: var(--section-header-text-transform, capitalize);
 
-		user-select: var(--h-user-select, none);
+		user-select: var(--section-header-user-select, none);
 	}
 
 	// Body
 	> header + div {
-		border-bottom-left-radius: var(--b-rounded-bottom-left, inherit);
-		border-bottom-right-radius: var(--b-rounded-bottom-right, inherit);
+		border-bottom-left-radius: var(--section-body-rounded-bottom-left, inherit);
+		border-bottom-right-radius: var(
+			--section-body-rounded-bottom-right,
+			inherit
+		);
 
-		padding: var(--b-padding, 1rem);
-		background-color: var(--b-bg-clr, hsl(var(--clr-surface-400-hsl) / 0.125));
+		padding: var(--section-body-padding, 1rem);
+		background-color: var(
+			--section-body-bg-clr,
+			hsl(var(--clr-surface-400-hsl) / 0.125)
+		);
 	}
 }

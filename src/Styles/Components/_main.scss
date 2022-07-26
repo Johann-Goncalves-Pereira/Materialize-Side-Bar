@@ -6,9 +6,20 @@
 }
 
 .base-center {
+	--gap_: 2rem;
+
 	grid-column: 2/2;
 
 	height: calc(100vh - var(--header-height) - var(--frame-space) * 2);
 
 	overflow: hidden;
+
+	&__wrapper {
+		display: grid;
+		gap: var(--gap_);
+
+		height: inherit;
+		transition: transform 500ms ease-in-out;
+		transform: translateY(var(--pager));
+	}
 }
