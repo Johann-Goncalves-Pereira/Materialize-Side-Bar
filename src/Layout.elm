@@ -1,12 +1,12 @@
 module Layout exposing (Model, getLayoutIds, initLayout, layoutIds, viewLayout)
 
-import Array exposing (Array)
+import Array
 import Components.Svg as ElmSvg
 import Gen.Route as Route exposing (Route)
 import Html exposing (Attribute, Html, a, button, div, footer, header, img, input, li, main_, nav, span, text, ul)
 import Html.Attributes as Attr exposing (class, classList, href, id, tabindex)
 import Regex
-import String exposing (right)
+import String
 import Utils.View exposing (materialIcon)
 
 
@@ -137,13 +137,7 @@ viewLayout model =
         , main_ (mainClass :: model.mainAttrs)
             ([ div ([ class "sidebar--left", Attr.id <| getLayoutIds 1 ] ++ model.sidebarAttrs.left)
                 ([ viewBorderLines
-                 , ul [ class "list" ] <|
-                    List.map
-                        (\x ->
-                            li [ class "list__item" ]
-                                [ button [ class "list__button" ] [ materialIcon "" x ] ]
-                        )
-                        [ "app_registration", "token", "diamond", "compost" ]
+                 , viewSidebarLeftList
                  ]
                     ++ model.sidebarContent.left
                 )
@@ -166,6 +160,33 @@ viewBorderLines =
         [ span [ class "border-lines__top" ] []
         , span [ class "border-lines__bottom" ] []
         ]
+
+
+viewSidebarLeftList : Html msg
+viewSidebarLeftList =
+    ul [ class "list" ] <|
+        List.indexedMap
+            (\i x ->
+                let
+                    _ =
+                        "link--" ++ String.fromInt i
+                in
+                li []
+                    [ a [ href "", class "list__button" ]
+                        [ materialIcon "" x
+
+                        {- , section [ class "link-section", ariaLabelledby info_ ]
+                           [ header [ class "link-section__header" ]
+                               [ Html.h6 [ Attr.id info_ ] [ text x ] ]
+                           , p [] [ text """somaslkdjf çlak jsçdlkjf sdkljf çalksdj fçlkasjd
+                           sdlkfj asçlkdj fçlkaj sçd askjdçf lkasj dçflkja sçlkdjf açlks j
+                           afskldj çflkasjdçlkfjaçlksjd çlfk açlksdjfçlak sdjçl fkjasçlkd""" ]
+                           ]
+                        -}
+                        ]
+                    ]
+            )
+            [ "app_registration", "token", "diamond", "compost" ]
 
 
 layoutIds : List String
