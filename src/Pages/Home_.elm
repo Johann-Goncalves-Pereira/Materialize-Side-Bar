@@ -161,6 +161,42 @@ view shared model =
     }
 
 
+viewFooter : Shared.Model -> { attrs : List (Attribute Msg), content : List (Html Msg) }
+viewFooter { elements } =
+    let
+        sidebarSize =
+            Dict.get (getLayoutIds 1) elements.elements
+
+        justSize =
+            case sidebarSize of
+                Just e_ ->
+                    e_.element.width
+
+                Nothing ->
+                    44
+    in
+    { attrs =
+        [ class "select-none"
+        , String.fromFloat justSize
+            ++ "px"
+            |> customProp "sidebar-left-width"
+        ]
+    , content =
+        [ div
+            [ class "hired-time-spend"
+            , Attr.title "Tempo restante do especialista"
+            ]
+            [ div [ class "hired-time-spend__bar" ]
+                [ span [] [] ]
+            , Html.i [ class "hired-time-spend__time-left" ] [ text "1h, 37min" ]
+            ]
+        , Html.small [ class "time" ] [ text "Terça, 26 de Julho de 2022 - 15:32" ]
+        , Html.i [ class "online", Attr.title "Há 8 pessoas online. Sua internet não está estável" ]
+            [ text "Current Online (8) ◦ ", materialIcon "" "wifi" ]
+        ]
+    }
+
+
 lengthPager : Model -> Int
 lengthPager model =
     viewCenter model
@@ -202,8 +238,15 @@ viewPager model =
 
 
 viewCenter : Model -> List (Html Msg)
-viewCenter _ =
-    [ section [ class "base-section--call", ariaLabelledby "call-label" ]
+viewCenter model =
+    [ viewCall model
+    , viewChat model
+    ]
+
+
+viewCall : Model -> Html Msg
+viewCall model =
+    section [ class "base-section--call", ariaLabelledby "call-label" ]
         [ header [ class "header" ]
             [ h4 [ class "header__title", Attr.id "call-label" ] [ text "Call" ] ]
         , div [ class "body" ]
@@ -215,48 +258,13 @@ viewCenter _ =
                 []
             ]
         ]
-    , section [ class "base-section--chat", ariaLabelledby "chat-label" ]
+
+
+viewChat : Model -> Html Msg
+viewChat model =
+    section [ class "base-section--chat", ariaLabelledby "chat-label" ]
         [ header [ class "header" ]
             [ h4 [ class "header__title", Attr.id "chat-label" ] [ text "chat" ] ]
         , div [ class "body" ]
-            [ img
-                [ class "body__img"
-                , Attr.src <| asset "/assets/jitsi-semple.png"
-                , Attr.alt "Jitise semple"
-                ]
-                []
-            ]
+            []
         ]
-    ]
-
-
-viewFooter : Shared.Model -> { attrs : List (Attribute Msg), content : List (Html Msg) }
-viewFooter { elements } =
-    let
-        sidebarSize =
-            Dict.get (getLayoutIds 1) elements.elements
-
-        justSize =
-            case sidebarSize of
-                Just e_ ->
-                    e_.element.width
-
-                Nothing ->
-                    44
-    in
-    { attrs =
-        [ String.fromFloat justSize
-            ++ "px"
-            |> customProp "sidebar-left-width"
-        ]
-    , content =
-        [ div [ class "hired-time-spend", Attr.title "Tempo restante do especialista" ]
-            [ div [ class "hired-time-spend__bar" ]
-                [ span [] [] ]
-            , Html.i [ class "hired-time-spend__time-left" ] [ text "1h, 37min" ]
-            ]
-        , Html.small [ class "time" ] [ text "Terça, 26 de Julho de 2022 - 15:32" ]
-        , Html.i [ class "online", Attr.title "Há 8 pessoas online. Sua internet não está estável" ]
-            [ text "Current Online (8) ◦ ", materialIcon "" "wifi" ]
-        ]
-    }

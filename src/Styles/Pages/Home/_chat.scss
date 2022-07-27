@@ -1,0 +1,27 @@
+.base-section--chat {
+	--section-body-padding: 0;
+
+	.body {
+		position: relative;
+
+		&::before,
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 0;
+			width: 2rem;
+			height: 100%;
+			background-image: linear-gradient(
+				var(--clr-surface-400) 11%,
+				transparent 0
+			);
+			background-position: 0;
+			background-size: 16px 7px;
+			background-size: 1px 13px;
+		}
+
+		&::before {
+			transform: translateY(-0.45rem);
+		}
+	}
+}
