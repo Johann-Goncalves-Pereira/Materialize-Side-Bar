@@ -40,7 +40,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( { quietForOneSecond = manualDebouncer 0.25
+    ( { quietForOneSecond = manualDebouncer 0.125
       , pager = 0
       }
     , Cmd.none
