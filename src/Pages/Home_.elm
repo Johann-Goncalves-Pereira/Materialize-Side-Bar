@@ -265,6 +265,8 @@ viewChat model =
     section [ class "base-section--chat", ariaLabelledby "chat-label" ]
         [ header [ class "header" ]
             [ h4 [ class "header__title", Attr.id "chat-label" ] [ text "chat" ] ]
-        , div [ class "body" ]
+        , section [ class "message" ]
             []
+            |> List.repeat 10
+            |> div [ class "body" ]
         ]

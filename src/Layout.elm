@@ -3,8 +3,9 @@ module Layout exposing (Model, getLayoutIds, initLayout, layoutIds, viewLayout)
 import Array
 import Components.Svg as ElmSvg
 import Gen.Route as Route exposing (Route)
-import Html exposing (Attribute, Html, a, button, div, footer, header, img, input, li, main_, nav, span, text, ul)
+import Html exposing (Attribute, Html, a, button, div, footer, header, img, input, li, main_, nav, p, span, text, ul)
 import Html.Attributes as Attr exposing (class, classList, href, id, tabindex)
+import Html.Attributes.Aria exposing (ariaLabelledby)
 import Regex
 import String
 import Utils.View exposing (materialIcon)
@@ -168,22 +169,13 @@ viewSidebarLeftList =
         List.indexedMap
             (\i x ->
                 let
-                    _ =
+                    link =
                         "link--" ++ String.fromInt i
                 in
-                li []
+                li [ class "list__item", ariaLabelledby link ]
                     [ a [ href "", class "list__button" ]
-                        [ materialIcon "" x
-
-                        {- , section [ class "link-section", ariaLabelledby info_ ]
-                           [ header [ class "link-section__header" ]
-                               [ Html.h6 [ Attr.id info_ ] [ text x ] ]
-                           , p [] [ text """somaslkdjf çlak jsçdlkjf sdkljf çalksdj fçlkasjd
-                           sdlkfj asçlkdj fçlkaj sçd askjdçf lkasj dçflkja sçlkdjf açlks j
-                           afskldj çflkasjdçlkfjaçlksjd çlfk açlksdjfçlak sdjçl fkjasçlkd""" ]
-                           ]
-                        -}
-                        ]
+                        [ materialIcon "" x ]
+                    , p [ class "list__text", Attr.id link ] [ text x ]
                     ]
             )
             [ "app_registration", "token", "diamond", "compost" ]
